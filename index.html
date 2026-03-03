@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Budget Library — Public Finance Documents</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:       #1a1a2e;
+    --ink-soft:  #4a4a6a;
+    --ink-faint: #9090b0;
+    --paper:     #faf8f4;
+    --paper-2:   #f2efe8;
+    --saffron:   #e8631a;
+    --saffron-light: #fdf0e8;
+    --green:     #1a7a4a;
+    --green-light: #e8f5ee;
+    --rule:      #dddad2;
+    --shadow:    0 2px 12px rgba(26,26,46,0.08);
+    --shadow-lg: 0 8px 32px rgba(26,26,46,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header-stripe {
+    height: 4px;
+    background: linear-gradient(90deg, #ff9933 33.3%, #ffffff 33.3%, #ffffff 66.6%, #138808 66.6%);
+  }
+
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 32px 40px;
+    position: relative;
+  }
+
+  .header-eyebrow {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 16px;
+  }
+
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  .header-title span { color: #ff9933; }
+
+  .header-desc {
+    font-size: 16px;
+    color: #b0b0cc;
+    max-width: 560px;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  .header-meta {
+    margin-top: 28px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .meta-pill {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-family: 'Source Code Pro', monospace;
+    color: #c0c0d8;
+    letter-spacing: 0.05em;
+  }
+
+  .meta-pill strong { color: white; }
+
+  /* ── SEARCH BAR ── */
+  .search-section {
+    background: var(--paper-2);
+    border-bottom: 1px solid var(--rule);
+    padding: 24px 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+  }
+
+  .search-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-faint);
+    font-size: 16px;
+    pointer-events: none;
+  }
+
+  #search-input {
+    width: 100%;
+    padding: 11px 16px 11px 42px;
+    border: 1.5px solid var(--rule);
+    border-radius: 6px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 15px;
+    background: white;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #search-input:focus { border-color: var(--saffron); }
+  #search-input::placeholder { color: var(--ink-faint); }
+
+  .filter-select {
+    padding: 11px 16px;
+    border: 1.5px solid var(--rule);
+    border-radius: 6px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 14px;
+    background: white;
+    color: var(--ink);
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    min-width: 160px;
+  }
+
+  .filter-select:focus { border-color: var(--saffron); }
+
+  .result-count {
+    font-size: 13px;
+    color: var(--ink-faint);
+    white-space: nowrap;
+    font-family: 'Source Code Pro', monospace;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    margin-top: 48px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--rule);
+  }
+
+  .section-header:first-of-type { margin-top: 0; }
+
+  .section-flag {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .flag-central { background: #fff3e8; }
+  .flag-state   { background: #e8f5ee; }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .section-subtitle {
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+
+  .doc-count-badge {
+    margin-left: auto;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 12px;
+    font-family: 'Source Code Pro', monospace;
+    color: var(--ink-soft);
+  }
+
+  /* ── DOCUMENT GRID ── */
+  .doc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+
+  /* ── DOCUMENT CARD ── */
+  .doc-card {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 20px;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .doc-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: #c8c4bc;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .pdf-icon {
+    width: 36px;
+    height: 36px;
+    background: #fee8e0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #c0392b;
+    font-family: 'Source Code Pro', monospace;
+    flex-shrink: 0;
+    letter-spacing: -0.03em;
+  }
+
+  .card-meta { flex: 1; }
+
+  .card-category {
+    font-size: 11px;
+    font-family: 'Source Code Pro', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    margin-bottom: 4px;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.35;
+  }
+
+  .card-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-family: 'Source Code Pro', monospace;
+    letter-spacing: 0.03em;
+  }
+
+  .tag-year     { background: #eef2ff; color: #4455aa; }
+  .tag-lang     { background: var(--paper-2); color: var(--ink-soft); border: 1px solid var(--rule); }
+  .tag-central  { background: var(--saffron-light); color: #a04010; }
+  .tag-state    { background: var(--green-light);   color: #0f5030; }
+
+  .card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .btn-view {
+    flex: 1;
+    padding: 9px 16px;
+    background: var(--ink);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-view:hover { background: #2a2a4e; }
+
+  .btn-download {
+    padding: 9px 12px;
+    background: var(--paper-2);
+    color: var(--ink-soft);
+    border: 1.5px solid var(--rule);
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-download:hover { background: white; border-color: var(--ink-soft); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 80px 32px;
+    color: var(--ink-faint);
+  }
+
+  .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state p { font-size: 16px; }
+
+  /* ── HIDDEN ── */
+  .hidden { display: none !important; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: #8080a0;
+    text-align: center;
+    padding: 32px;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  footer a { color: #b0b0cc; text-decoration: none; }
+  footer a:hover { color: white; }
+  footer strong { color: #d0d0e8; }
+
+  .footer-stripe {
+    height: 3px;
+    background: linear-gradient(90deg, #ff9933 33.3%, #ffffff 33.3%, #ffffff 66.6%, #138808 66.6%);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .header-inner { padding: 32px 20px 28px; }
+    .search-section { padding: 16px 20px; }
+    main { padding: 28px 20px 60px; }
+    .doc-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header-stripe"></div>
+<header>
+  <div class="header-inner">
+    <div class="header-eyebrow">Public Finance Archive · India</div>
+    <h1 class="header-title">India Budget<br><span>Library</span></h1>
+    <p class="header-desc">A free, open archive of Indian government budget documents — central and state levels. Documents are hosted independently to ensure long-term availability.</p>
+    <div class="header-meta">
+      <div class="meta-pill"><strong>7</strong> documents</div>
+      <div class="meta-pill"><strong>2</strong> governments</div>
+      <div class="meta-pill">Budget year <strong>2026–27</strong></div>
+      <div class="meta-pill">Last updated <strong>Mar 2026</strong></div>
+    </div>
+  </div>
+</header>
+
+<div class="search-section">
+  <div class="search-inner">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Search documents…" autocomplete="off">
+    </div>
+    <select class="filter-select" id="filter-govt">
+      <option value="">All Governments</option>
+      <option value="Union Government">Union Government</option>
+      <option value="Kerala">Kerala</option>
+    </select>
+    <select class="filter-select" id="filter-cat">
+      <option value="">All Categories</option>
+      <option value="Budget Highlights">Budget Highlights</option>
+      <option value="Budget Speech">Budget Speech</option>
+      <option value="Key Reference">Key Reference</option>
+      <option value="Annual Financial Statement">Annual Financial Statement</option>
+      <option value="Budget at a Glance">Budget at a Glance</option>
+    </select>
+    <span class="result-count" id="result-count">7 documents</span>
+  </div>
+</div>
+
+<main id="main-content">
+</main>
+
+<div class="footer-stripe"></div>
+<footer>
+  <p><strong>India Budget Library</strong> — an independent public interest archive</p>
+  <p>Documents sourced from official government websites and hosted independently for archival purposes.</p>
+  <p style="margin-top:12px; font-size:12px;">
+    Source URLs preserved for attribution. 
+    This is a pilot covering 2026–27 budgets. 
+    Not affiliated with any government body.
+  </p>
+</footer>
+
+<script>
+const DOCS = [
+  {
+    doc_id: "UB-2627-001",
+    government: "Union Government",
+    level: "Central",
+    year: "2026-27",
+    category: "Budget Highlights",
+    document_title: "Key Features of Budget 2026-27",
+    language: "English",
+    file_format: "PDF",
+    hosted_url: "https://pub-b37420fb4c0141b1b577a58aaf5f8fb4.r2.dev/budget-docs/union-government/union_2026-27_budget_highlights.pdf"
+  },
+  {
+    doc_id: "UB-2627-002",
+    government: "Union Government",
+    level: "Central",
+    year: "2026-27",
+    category: "Budget Speech",
+    document_title: "Finance Minister's Budget Speech",
+    language: "English",
+    file_format: "PDF",
+    hosted_url: "https://pub-b37420fb4c0141b1b577a58aaf5f8fb4.r2.dev/budget-docs/union-government/union_2026-27_fm_speech.pdf"
+  },
+  {
+    doc_id: "UB-2627-003",
+    government: "Union Government",
+    level: "Central",
+    year: "2026-27",
+    category: "Key Reference",
+    document_title: "Key to Budget Document 2026",
+    language: "English",
+    file_format: "PDF",
+    hosted_url: "https://pub-b37420fb4c0141b1b577a58aaf5f8fb4.r2.dev/budget-docs/union-government/union_2026-27_key_to_budget.pdf"
+  },
+  {
+    doc_id: "KL-2627-001",
+    government: "Kerala",
+    level: "State",
+    year: "2026-27",
+    category: "Budget Speech",
+    document_title: "Finance Minister's Budget Speech 2026-27",
+    language: "English",
+    file_format: "PDF",
+    hosted_url: "https://pub-b37420fb4c0141b1b577a58aaf5f8fb4.r2.dev/budget-docs/kerala/kerala_2026-27_fm_speech.pdf"
+  },
+  {
+    doc_id: "KL-2627-002",
+    government: "Kerala",
+    level: "State",
+    year: "2026-27",
+    category: "Budget Speech",
+    document_title: "Finance Minister's Budget Speech 2026-27",
+    language: "Malayalam",
+    file_format: "PDF",
+    hosted_url: "https://pub-b37420fb4c0141b1b577a58aaf5f8fb4.r2.dev/budget-docs/kerala/kerala_2026-27_fm_speech_ml.pdf"
+  },
+  {
+    doc_id: "KL-2627-003",
+    government: "Kerala",
+    level: "State",
+    year: "2026-27",
+    category: "Annual Financial Statement",
+    document_title: "Annual Financial Statement 2026-27",
+    language: "English",
+    file_format: "PDF",
+    hosted_url: "https://pub-b37420fb4c0141b1b577a58aaf5f8fb4.r2.dev/budget-docs/kerala/kerala_2026-27_afs.pdf"
+  },
+  {
+    doc_id: "KL-2627-004",
+    government: "Kerala",
+    level: "State",
+    year: "2026-27",
+    category: "Budget at a Glance",
+    document_title: "Budget in Brief",
+    language: "English",
+    file_format: "PDF",
+    hosted_url: "https://pub-b37420fb4c0141b1b577a58aaf5f8fb4.r2.dev/budget-docs/kerala/kerala_2026-27_budget_at_a_glance.pdf"
+  }
+];
+
+function groupBy(arr, key) {
+  return arr.reduce((acc, item) => {
+    (acc[item[key]] = acc[item[key]] || []).push(item);
+    return acc;
+  }, {});
+}
+
+function renderCard(doc) {
+  const levelTag = doc.level === "Central"
+    ? `<span class="tag tag-central">Central</span>`
+    : `<span class="tag tag-state">State</span>`;
+  return `
+    <div class="doc-card" data-id="${doc.doc_id}">
+      <div class="card-top">
+        <div class="pdf-icon">PDF</div>
+        <div class="card-meta">
+          <div class="card-category">${doc.category}</div>
+          <div class="card-title">${doc.document_title}</div>
+        </div>
+      </div>
+      <div class="card-tags">
+        <span class="tag tag-year">${doc.year}</span>
+        ${levelTag}
+        <span class="tag tag-lang">${doc.language}</span>
+      </div>
+      <div class="card-actions">
+        <a class="btn-view" href="${doc.hosted_url}" target="_blank" rel="noopener">
+          <span>📄</span> Open PDF
+        </a>
+        <a class="btn-download" href="${doc.hosted_url}" download title="Download">
+          ⬇
+        </a>
+      </div>
+    </div>`;
+}
+
+function renderSections(docs) {
+  const main = document.getElementById('main-content');
+  if (docs.length === 0) {
+    main.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <p>No documents match your search. Try different keywords or clear the filters.</p>
+      </div>`;
+    return;
+  }
+
+  const grouped = groupBy(docs, 'government');
+  const order = ['Union Government', 'Kerala'];
+  const govtEmoji = { 'Union Government': '🇮🇳', 'Kerala': '🏛️' };
+  const govtLevel = { 'Union Government': 'Central Government', 'Kerala': 'State Government' };
+
+  let html = '';
+  order.forEach(govt => {
+    if (!grouped[govt]) return;
+    const items = grouped[govt];
+    const isState = items[0].level === 'State';
+    html += `
+      <div class="section-group" data-govt="${govt}">
+        <div class="section-header">
+          <div class="section-flag ${isState ? 'flag-state' : 'flag-central'}">${govtEmoji[govt]}</div>
+          <div>
+            <div class="section-title">${govt}</div>
+            <div class="section-subtitle">${govtLevel[govt]} · Budget 2026–27</div>
+          </div>
+          <span class="doc-count-badge">${items.length} doc${items.length > 1 ? 's' : ''}</span>
+        </div>
+        <div class="doc-grid">
+          ${items.map(renderCard).join('')}
+        </div>
+      </div>`;
+  });
+  main.innerHTML = html;
+}
+
+function applyFilters() {
+  const query  = document.getElementById('search-input').value.toLowerCase().trim();
+  const govt   = document.getElementById('filter-govt').value;
+  const cat    = document.getElementById('filter-cat').value;
+
+  const filtered = DOCS.filter(d => {
+    const matchSearch = !query ||
+      d.document_title.toLowerCase().includes(query) ||
+      d.category.toLowerCase().includes(query) ||
+      d.government.toLowerCase().includes(query) ||
+      d.language.toLowerCase().includes(query);
+    const matchGovt = !govt || d.government === govt;
+    const matchCat  = !cat  || d.category === cat;
+    return matchSearch && matchGovt && matchCat;
+  });
+
+  document.getElementById('result-count').textContent =
+    `${filtered.length} document${filtered.length !== 1 ? 's' : ''}`;
+
+  renderSections(filtered);
+}
+
+document.getElementById('search-input').addEventListener('input', applyFilters);
+document.getElementById('filter-govt').addEventListener('change', applyFilters);
+document.getElementById('filter-cat').addEventListener('change', applyFilters);
+
+// Initial render
+renderSections(DOCS);
+</script>
+</body>
+</html>
